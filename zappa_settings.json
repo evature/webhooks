@@ -1,0 +1,7 @@
+{
+    "dev": {
+        "s3_bucket": "eva-webhooks",
+        "app_function": "my_app.APP",
+        "keep_warm": false
+    }
+}
