@@ -3,8 +3,16 @@
 Created on Jul 12, 2016
 
 @author: Tal
+
+Demo implementation of applicative webhooks for the Evature BotKit = http://www.evature.com/docs/botkit.html
+It is meant to be as simple as possible.
+
+To achieve max simplicity, it is based on Zappa + Flask, deployed to AWS Lambda.
+This is Zappa - https://github.com/Miserlou/Zappa
+
+Assuming you have an AWS account you can have these webhooks running, "serverless", in 5 minutes.
 '''
-from __future__ import unicode_literals, division, print_function
+from __future__ import unicode_literals, division
 import string
 import random
 
@@ -50,6 +58,37 @@ class BotWebhookTypes(object):
     show_reservation = 'show_reservation'
     ask_time = 'ask_time'
     ask_weather = 'ask_weather'
+
+
+FLIGHT_STATUS_MESSAGE_EXAMPLE = dict(
+    _type='DataMessage',
+    subType='airline_update',
+    asAttachment=False,
+    introMessage='Here is an example of a Flight Status',
+    jsonData=dict(
+                flight_number='UAL123',
+                number=123,
+                airline_name='United',
+                departure_airport={
+                    "airport_code": 'LHR',
+                    "city":'London Heathrow',
+                    "gate":'232',
+                    "terminal":''
+                },
+                arrival_airport={
+                    "airport_code": 'IAD',
+                    "city": 'Washington Dulles Intl',
+                    "gate": 'C2',
+                    "terminal": 'B'
+                },
+                flight_schedule={
+                    "departure_time_actual": "2016-08-09T08:16:00",
+                    "arrival_time": "2016-08-09T10:51:00",
+                    "departure_time": "2016-08-09T07:30:00",
+                    "boarding_time": "",
+                }
+            ),
+    )
 
 
 BOARDING_PASS_MESSAGE_EXAMPLE = dict(
@@ -133,7 +172,7 @@ def boarding_pass():
 
 def random_string(length_of_string):
     """Generate a random string"""
-    return ''.join(random.choice(string.ascii_uppercase + string.digits) # please no lowercase because Sabre use only uppercase...
+    return ''.join(random.choice(string.ascii_uppercase + string.digits)
                    for _ in range(length_of_string))
 
 @APP.route('/dl', methods=['GET', 'POST'])
@@ -168,8 +207,6 @@ def demo_login():
                 messages.append("Success!")
                 if redirect_uri:
                     return redirect('{}&authorization_code={}'.format(redirect_uri, random_string(5)))
-                # https://www.facebook.com/messenger_platform/account_linking/?account_linking_token=ARTXCgVxCwPhsZpxeTmXdAyNJ80epG2CNT1RNFEPXthPcIE8dDpGbIoy7ZRNTu2YsIo-LnGUrXD8mgVXmCq46zuYdua4Pqx0h0N_izSZppv9Vw
-                # &authorization_code=PL66J
             else:
                 # fail
                 messages.append("Invalid Username/Password<br>Use &ldquo;username&rdquo;  and &ldquo;password&rdquo;"
@@ -203,6 +240,13 @@ def roadside():
                     botkitVersion=BOTKIT_API_LATEST_VERSION)
     return jsonify(response)
 
+
+@APP.route('/flightstat', methods=['POST'])
+def flight_status():
+    """Simple flight status reply"""
+    response = dict(messages=[FLIGHT_STATUS_MESSAGE_EXAMPLE],
+                    botkitVersion=BOTKIT_API_LATEST_VERSION)
+    return jsonify(response)
 
 # We only need this for local development.
 if __name__ == '__main__':
