@@ -5,13 +5,10 @@ Created on Jul 12, 2016
 @author: Tal
 '''
 from __future__ import unicode_literals, division, print_function
-import json
-import inspect
 import string
 import random
-from datetime import datetime
 
-from flask import Flask, Response, request, redirect, render_template, jsonify
+from flask import Flask, request, redirect, render_template, jsonify
 
 APP = Flask(__name__)
 
@@ -55,130 +52,29 @@ class BotWebhookTypes(object):
     ask_weather = 'ask_weather'
 
 
-class Message(object):
-    """Base message object to BotIntegration"""
-    @property
-    def _type(self):
-        """Type of the message"""
-        return self.__class__.__name__
-
-class TextMessage(Message):
-    """A Simple text message container"""
-    def __init__(self, text):
-        self.text = text
-
-class ImageMessage(Message):
-    """An Image message"""
-    def __init__(self, imageUrl, asAttachment=False):
-        self.imageUrl = imageUrl # pylint:disable=invalid-name
-        # asAttachment - if true will send the image as a document attached message (where possible by Messaging Provider)
-        self.asAttachment = asAttachment # camelCase on purpose - this becomes a JSON field pylint:disable=invalid-name
-
-class DataMessage(Message):
-    """ Data messages contain JSON of specific hook reply,
-    eg. https://developers.facebook.com/docs/messenger-platform/send-api-reference/airline-boardingpass-template
-    subType constants are in enums.py DataMessageSubType
-    """
-    def __init__(self, jsonData, subType, asAttachment=False, introMessage=None):
-        self.introMessage = introMessage
-        self.subType = subType
-        self.jsonData = jsonData
-        self.asAttachment = asAttachment # in case the message becomes an image, send it as a document attachment or as an inline image
-
-
-class InteractiveEvent(Message):
-    """There can be only one interactive Event - at the end of the messages list"""
-    pass
-
-# class LoginOAuthEvent(InteractiveEvent):
-#     """ Request OAuth Login:
-#     1. Asks the user to press a button to login
-#     2. Opens a browser to the webLoginUrl with GET parameters "redirect_url" and timestamped "account_linking_token"
-#     3. Once the user completes log in in the website, the user is redirected to the "redirect_url" with the token and "authorization_data"
-#     4. The Login is complete - the result is posted  (to loginSuccessHook or loginFailHook)
-#     """
-#     def __init__(self, webLoginUrl, loginSuccessHook, loginFailHook, text, imageUrl=None):
-#         super(LoginOAuthEvent, self).__init__()
-#         self.text = text
-#         self.imageUrl = imageUrl
-#         assert webLoginUrl, "LoginOAuthEvent must include webLoginUrl"
-#         self.webLoginUrl = webLoginUrl
-#         self.loginSuccessHook = loginSuccessHook
-#         self.loginFailHook = loginFailHook
-
-class LoginOAuthEvent(InteractiveEvent):
-    """ Request OAuth Login:
-    1. Asks the user to press a button to login
-    2. Opens a browser to the webLoginUrl with GET parameters "redirect_url" and timestamped "account_linking_token"
-    3. Once the user completes log in in the website, the user is redirected to the "redirect_url" with the token and "authorization_data"
-    4. The Login is complete - the result is posted  (to loginSuccessHook or loginFailHook)
-    """
-    def __init__(self, webLoginUrl, loginSuccessHook, text, loginFailHook=None, imageUrl=None):
-        super(LoginOAuthEvent, self).__init__()
-        self.text = text
-        self.imageUrl = imageUrl
-        assert webLoginUrl, "LoginOAuthEvent must include webLoginUrl"
-        self.webLoginUrl = webLoginUrl
-        assert (
-                    isinstance(loginSuccessHook, dict) and
-                    (loginSuccessHook.get('url') or
-                     loginSuccessHook.get('webhook'))
-                ), "loginSuccessHook expected to be object with 'url' or 'webhook' key in it"
-        self.loginSuccessHook = loginSuccessHook
-        self.loginFailHook = loginFailHook
-
-class FilteredObjectEncoder(json.JSONEncoder):
-    """Encode Python objects to JSON - only the Truthy values
-    Convert to JSON with:   json.dumps(data, cls=FilteredObjectEncoder))"""
-    def default(self, obj): # pylint:disable=method-hidden
-        if hasattr(obj, "to_json"):
-            return self.default(obj.to_json())
-        elif isinstance(obj, datetime):
-            return '{:%Y-%m-%dT%H:%M:%S}'.format(obj)
-        elif hasattr(obj, "__dict__"):
-            simple_dict = dict(
-                (key, value)
-                for key, value in inspect.getmembers(obj)
-                if value # only truthy values !
-                    and "__" not in key
-                    and not inspect.isabstract(value)
-                    and not inspect.isbuiltin(value)
-                    and not inspect.isfunction(value)
-                    and not inspect.isgenerator(value)
-                    and not inspect.isgeneratorfunction(value)
-                    and not inspect.ismethod(value)
-                    and not inspect.ismethoddescriptor(value)
-                    and not inspect.isroutine(value)
-            )
-            return self.default(simple_dict)
-        return obj
-
-def messages_to_json(messages, chat_key=None, login_data=None, version=BOTKIT_API_LATEST_VERSION, **kwargs):
-    """ Converts list of Message objects to JSON  - for output of WebHook or send_botkit_message url"""
-    data = {"botkitVersion": version,
-            "messages": messages}
-    if chat_key:
-        data["chatKey"] = unicode(chat_key)
-    if login_data:
-        data["loginData"] = login_data
-    return json.dumps(data, cls=FilteredObjectEncoder, **kwargs)
-
-
-
-
-
-@APP.route('/', methods=['POST'])
-def index():
-    """Main view function"""
-    response = messages_to_json([
-        TextMessage("Here is your first message"),
-        TextMessage("and a second message"),
-        ImageMessage("http://www.fortresslockandsecurity.com/wp-content/uploads/2014/04/Austin-Locksmith.png")
-                                 ])
-    resp = Response(response=response,
-                    status=200,
-                    mimetype="application/json")
-    return resp
+BOARDING_PASS_MESSAGE_EXAMPLE = dict(
+    _type='DataMessage',
+    subType='airline_boardingpass',
+    asAttachment=True,
+    introMessage='Here is an example of a Boarding Pass',
+    jsonData={'auxiliary_fields': [{'label': 'Terminal', 'value': 'T1'},
+                                   {'label': 'Departure', 'value': '30OCT 19:05'}],
+              'flight_info': {'arrival_airport': {'airport_code': 'AMS', 'city': 'Amsterdam'},
+                              'departure_airport': {'airport_code': 'JFK', 'city': 'New York', 'gate': 'D57', 'terminal': 'T1'},
+                              'flight_number': 'KL0642',
+                              'flight_schedule': {'arrival_time': '2016-01-05T17:30', 'departure_time': '2016-01-02T19:05'}},
+              'header_image_url': 'https://d1hz6cg1a1lrv6.cloudfront.net/media/images/evature/logo4-19b0ca62fbf2b08e3bbc9d25298523ea4600422e.jpg',
+              'logo_image_url': 'https://d2hbukybm05hyt.cloudfront.net/images/airline_logos/logo_JB.png',
+              'passenger_name': 'TAL WEISS',
+              'pnr_number': 'CG4X7U',
+              'qr_code': 'M1WEISS\\/TAL  CG4X7U nawouehgawgnapwi3jfa0wfh',
+              'seat': '75A',
+              'secondary_fields': [{'label': 'Boarding', 'value': '18:30'},
+                                   {'label': 'Gate', 'value': 'D57'},
+                                   {'label': 'Seat', 'value': '75A'},
+                                   {'label': 'Sec.Nr.', 'value': '003'}],
+              'travel_class': 'business'},
+    )
 
 
 @APP.route('/simple', methods=['POST'])
@@ -226,79 +122,14 @@ def locked():
                                        webLoginUrl='https://chat.evature.com/demo_login')])
     return jsonify(response)
 
-def get_boarding_pass(fullname):
-    """Generate the data for a boarding pass"""
-    boarding_pass_data = {
-            "passenger_name": fullname.upper(),
-            "pnr_number": "CG4X7U",
-            "travel_class": "business",
-            "seat": "74J",
-            "auxiliary_fields": [
-              {
-                "label": "Terminal",
-                "value": "T1"
-              },
-              {
-                "label": "Departure",
-                "value": "30OCT 19:05"
-              }
-            ],
-            "secondary_fields": [
-              {
-                "label": "Boarding",
-                "value": "18:30"
-              },
-              {
-                "label": "Gate",
-                "value": "D57"
-              },
-              {
-                "label": "Seat",
-                "value": "74J"
-              },
-              {
-                "label": "Sec.Nr.",
-                "value": "003"
-              }
-            ],
-            "logo_image_url": "https://d2hbukybm05hyt.cloudfront.net/images/airline_logos/logo_{}.png".format("JB"),
-            "header_image_url": "https://d1hz6cg1a1lrv6.cloudfront.net/media/images/evature/logo4-19b0ca62fbf2b08e3bbc9d25298523ea4600422e.jpg",
-            "qr_code": r"M1VOLINSKEY\/BARRY  CG4X7U nawouehgawgnapwi3jfa0wfh",
-            # "above_bar_code_image_url": "https:\/\/www.example.com\/en\/PLAT.png",
-            "flight_info": {
-              "flight_number": "KL0642",
-              "departure_airport": {
-                "airport_code": "JFK",
-                "city": "New York",
-                "terminal": "T1",
-                "gate": "D57"
-              },
-              "arrival_airport": {
-                "airport_code": "AMS",
-                "city": "Amsterdam"
-              },
-              "flight_schedule": {
-                "departure_time": "2016-01-02T19:05",
-                "arrival_time": "2016-01-05T17:30"
-              }
-            }
-          }
-    return boarding_pass_data
+
 
 @APP.route('/bp', methods=['POST'])
 def boarding_pass():
     """Return a boarding pass"""
-    boarding_pass_data = get_boarding_pass("Tal Weiss")
-    response = messages_to_json([
-                                  DataMessage(boarding_pass_data,
-                                              subType=DataMessageSubType.airline_boardingpass,
-                                              asAttachment=True,
-                                              introMessage="Here is an example of a Boarding Pass")
-                                 ])
-    resp = Response(response=response,
-                    status=200,
-                    mimetype="application/json")
-    return resp
+    response = dict(messages=[BOARDING_PASS_MESSAGE_EXAMPLE],
+                    botkitVersion=BOTKIT_API_LATEST_VERSION)
+    return jsonify(response)
 
 def random_string(length_of_string):
     """Generate a random string"""
@@ -351,41 +182,28 @@ def demo_login():
 def flight_boarding_pass_webhook():
     body = request.get_json(force=True)
     if body and isinstance(body, dict) and body.get('loginData'):
-        boarding_pass_data = get_boarding_pass("Tal Weiss")
-        response = messages_to_json([
-                                      DataMessage(boarding_pass_data,
-                                                  subType=DataMessageSubType.airline_boardingpass,
-                                                  asAttachment=True,
-                                                  introMessage="Here is an example of a Boarding Pass")
-                                     ])
+        response = dict(messages=[BOARDING_PASS_MESSAGE_EXAMPLE],
+                        botkitVersion=BOTKIT_API_LATEST_VERSION)
     else:
-        response = messages_to_json([
-                                      LoginOAuthEvent(webLoginUrl="https://chat.evature.com/demo_login",
-                                                      loginSuccessHook=BotWebhookTypes.flight_boarding_pass,
-                                                      loginFailHook=None,
-                                                      text="Please Log In first",
-                                                      imageUrl=None)
-                                     ])
+        response = dict(botkitVersion=BOTKIT_API_LATEST_VERSION,
+                        messages=[dict(_type='LoginOAuthEvent',
+                                       loginSuccessHook={'webhook': 'flight_boarding_pass'},
+                                       text='Please Login in first',
+                                       webLoginUrl='https://chat.evature.com/demo_login')])
+    return jsonify(response)
 
-    resp = Response(response=response,
-                    status=200,
-                    mimetype="application/json")
-    return resp
-
-def play():
-    """Playing with data"""
-    from pprint import pprint
-    res1 = messages_to_json([
-                                      LoginOAuthEvent(webLoginUrl="https://chat.evature.com/demo_login",
-                                                      loginSuccessHook=dict(webhook=BotWebhookTypes.flight_boarding_pass),
-                                                      loginFailHook=None,
-                                                      text="Please Login in first",
-                                                      imageUrl=None)
-                                     ])
-    pprint(json.loads(res1))
+@APP.route('/roadside', methods=['POST'])
+def roadside():
+    """Simple roadside assistance function"""
+    response = dict(messages=[
+        dict(_type="TextMessage", text="If you need roadside assistance with your Avis vehicle, please call 877-485-5295"),
+        dict(_type="ImageMessage",
+             imageUrl="http://www.whatafuture.com/wp-content/uploads/2015/03/Google-roadside-assistance-1024x683.jpg")
+                                    ],
+                    botkitVersion=BOTKIT_API_LATEST_VERSION)
+    return jsonify(response)
 
 
 # We only need this for local development.
 if __name__ == '__main__':
-#     APP.run()
-    play()
+    APP.run()
