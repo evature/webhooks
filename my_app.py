@@ -15,6 +15,7 @@ Assuming you have an AWS account you can have these webhooks running, "serverles
 from __future__ import unicode_literals, division
 import string
 import random
+import json
 
 from flask import Flask, request, redirect, render_template, jsonify
 
@@ -248,6 +249,199 @@ def flight_status():
                     botkitVersion=BOTKIT_API_LATEST_VERSION)
     return jsonify(response)
 
+@APP.route('/taltesting', methods=['POST'])
+def tal_testing():
+    """Playground for testing stuff"""
+    response = """{
+  "botkitVersion": "0.3.0",
+  "messages": [
+    {
+      "_type": "RichMessage",
+      "imageUrl": "https://www.travelexinsurance.com/images/default-album/mainimg_flightinsurance.jpg",
+      "title": "LHR /u21d2 SVO Option # 1: $1842.24",
+      "subtitle": " : 2016-08-31,c: 2016-09-01,one stop at SVO",
+      "buttons": [
+          {"_type": "ButtonMessage", "text": "Reserve Seat", "url": "https://www.google.com/search?q=flight%20LHR%20to%20SVO"}
+      ]
+    }
+  ]
+}"""
+
+    return jsonify(json.loads(response))
+
+@APP.route('/roshan', methods=['POST'])
+def for_roshan():
+    """Trying to fix the response for Amadeus"""
+    response = r"""
+{"botkitVersion":"0.3.0","messages":[{"_type":"TextMessage","text":"Here are the the top 3 results:"},{"_type":"HtmlMessage","height":"200","width":"350","html":"<html><head><style>div.img {    float: left;    width: 180px;}div.h2{  }div.span{position: relative;   font: bold 24px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-15px;   padding: 10px;   color:#2929a3;   left: 80px;}div.span_r{position: relative;   font: bold 24px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-785px;   padding: 10px;   color: #2929a3 ;   left: 255px;}div.departure{position: relative;   font: bold 50px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-60px;   padding: 10px;   color:  #000000;   left: -160px;}div.departure_r{position: relative;   font: bold 50px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-830px;   padding: 10px;   color: #000000 ;   left: 25px;}div.origin{position: relative;   font: 37px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-470px;   padding: 10px;   color:  #a6a6a6;   left: -25px;}div.origin_r{position: relative;   font: 37px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-930px;   padding: 10px;   color:  #a6a6a6;   left: 155px;}div.legPeriod{position: relative;   font: bold 20px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-240px;   padding: 10px;   color:  #000000;   left: 250px;}div.legPeriod_r{position: relative;   font: bold 20px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1130px;   padding: 10px;   color:  #000000;   left: 435px;}div.arrival{position: relative;   font: bold 55px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-375px;   padding: 10px;   color:  #000000;   left: 580px;}div.arrival_r{position: relative;   font: bold 55px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1405px;   padding: 10px;   color:  #000000;   left: 760px;}div.travelType{position: relative;   font:  28px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-580px;   padding: 10px;   color: #006622;   left: 420px;}div.travelType_r{position: relative;   font:  28px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1174px;   padding: 10px;   color:  #006622;   left: 435px;}div.dest{position: relative;   font: 37px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-635px;   padding: 10px;   color:  #a6a6a6;   left: 760px;}div.dest_r{position: relative;   font: 37px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1500px;   padding: 10px;   color: #a6a6a6;   left: 765px;}div.amount{position: relative;   font: 45px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-335px;   padding: 10px;   color:  #ffffff;   left: 430px;}div.img2 {    position: relative;   font: 45px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1045px;   padding: 10px;  color:  #ffffff;  left: 200px;}div.img3{position: relative;  font: 45px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-830px;   padding: 10px;   color:  #ffffff;   left: 200px;   width : 50px;}</style></head><body><div><div class=\"img\">  <a target=\"_blank\" href=\"http://maps.googleapis.com/maps/api/staticmap?size=382x220&path=geodesic:true|color:red|51.50853,-0.12574|60.317222,24.963333|55.972778,37.414722&markers=size:mid|label:1|51.50853,-0.12574&markers=size:mid|label:2|60.317222,24.963333&markers=size:mid|label:3|55.972778,37.414722\"><img src=\"template1.png\" alt=\"Response\" width=\"1000\" height=\"427\"></a></div><div class=\"span\"><h2>BA5908 AY153 </h2></div><div class=\"departure\"><h2><span>2016-08-31T23:35</span></h2></div><div class=\"legPeriod\"><h2><span>9hrs 50mins</span></h2></div><div class=\"arrival\"><h2><span>2016-09-01T09:25</span></h2></div><div class=\"origin\"><p><span>LHR</span></p></div><div class=\"travelType\"><span>1 Stop</span></div><div class=\"dest\"><span>SVO</span></div><div class=\"amount\"<p><span>$ 1842.24<div class=\"span_r\"><h2>SU6844 BA5905 </h2></div><div class=\"departure_r\"><h2>2016-09-03T20:05</h2></div><div class=\"legPeriod_r\"><h2>11hrs 40mins</h2></div><div class=\"arrival_r\"><h2>2016-09-04T07:45</h2></div><div class=\"origin_r\"><p>SVO</p></div><div class=\"travelType_r\"><p>1 Stop</p></div><div class=\"dest_r\"><p>LHR</p></div></span></p></div></body></html>"},{"_type":"HtmlMessage","height":"200","width":"350","html":"<html><head><style>div.img {    float: left;    width: 180px;}div.h2{  }div.span{position: relative;   font: bold 24px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-15px;   padding: 10px;   color:#2929a3;   left: 80px;}div.span_r{position: relative;   font: bold 24px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-785px;   padding: 10px;   color: #2929a3 ;   left: 255px;}div.departure{position: relative;   font: bold 50px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-60px;   padding: 10px;   color:  #000000;   left: -160px;}div.departure_r{position: relative;   font: bold 50px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-830px;   padding: 10px;   color: #000000 ;   left: 25px;}div.origin{position: relative;   font: 37px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-470px;   padding: 10px;   color:  #a6a6a6;   left: -25px;}div.origin_r{position: relative;   font: 37px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-930px;   padding: 10px;   color:  #a6a6a6;   left: 155px;}div.legPeriod{position: relative;   font: bold 20px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-240px;   padding: 10px;   color:  #000000;   left: 250px;}div.legPeriod_r{position: relative;   font: bold 20px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1130px;   padding: 10px;   color:  #000000;   left: 435px;}div.arrival{position: relative;   font: bold 55px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-375px;   padding: 10px;   color:  #000000;   left: 580px;}div.arrival_r{position: relative;   font: bold 55px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1405px;   padding: 10px;   color:  #000000;   left: 760px;}div.travelType{position: relative;   font:  28px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-580px;   padding: 10px;   color: #006622;   left: 420px;}div.travelType_r{position: relative;   font:  28px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1174px;   padding: 10px;   color:  #006622;   left: 435px;}div.dest{position: relative;   font: 37px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-635px;   padding: 10px;   color:  #a6a6a6;   left: 760px;}div.dest_r{position: relative;   font: 37px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1500px;   padding: 10px;   color: #a6a6a6;   left: 765px;}div.amount{position: relative;   font: 45px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-335px;   padding: 10px;   color:  #ffffff;   left: 430px;}div.img2 {    position: relative;   font: 45px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1045px;   padding: 10px;  color:  #ffffff;  left: 200px;}div.img3{position: relative;  font: 45px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-830px;   padding: 10px;   color:  #ffffff;   left: 200px;   width : 50px;}</style></head><body><div><div class=\"img\">  <a target=\"_blank\" href=\"http://maps.googleapis.com/maps/api/staticmap?size=382x220&path=geodesic:true|color:red|51.50853,-0.12574|49.016667,2.55|55.972778,37.414722&markers=size:mid|label:1|51.50853,-0.12574&markers=size:mid|label:2|49.016667,2.55&markers=size:mid|label:3|55.972778,37.414722\"><img src=\"template1.png\" alt=\"Response\" width=\"1000\" height=\"427\"></a></div><div class=\"span\"><h2>AF1781 AF1144 </h2></div><div class=\"departure\"><h2><span>2016-08-31T18:05</span></h2></div><div class=\"legPeriod\"><h2><span>1hrs 25mins</span></h2></div><div class=\"arrival\"><h2><span>2016-08-31T19:30</span></h2></div><div class=\"origin\"><p><span>LHR</span></p></div><div class=\"travelType\"><span>1 Stop</span></div><div class=\"dest\"><span>SVO</span></div><div class=\"amount\"<p><span>$ 2110.83<div class=\"span_r\"><h2>SU4921 AF1180 </h2></div><div class=\"departure_r\"><h2>2016-09-03T17:00</h2></div><div class=\"legPeriod_r\"><h2>2hrs 5mins</h2></div><div class=\"arrival_r\"><h2>2016-09-03T19:05</h2></div><div class=\"origin_r\"><p>SVO</p></div><div class=\"travelType_r\"><p>1 Stop</p></div><div class=\"dest_r\"><p>LHR</p></div></span></p></div></body></html>"},{"_type":"HtmlMessage","height":"200","width":"350","html":"<html><head><style>div.img {    float: left;    width: 180px;}div.h2{  }div.span{position: relative;   font: bold 24px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-15px;   padding: 10px;   color:#2929a3;   left: 80px;}div.span_r{position: relative;   font: bold 24px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-785px;   padding: 10px;   color: #2929a3 ;   left: 255px;}div.departure{position: relative;   font: bold 50px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-60px;   padding: 10px;   color:  #000000;   left: -160px;}div.departure_r{position: relative;   font: bold 50px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-830px;   padding: 10px;   color: #000000 ;   left: 25px;}div.origin{position: relative;   font: 37px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-470px;   padding: 10px;   color:  #a6a6a6;   left: -25px;}div.origin_r{position: relative;   font: 37px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-930px;   padding: 10px;   color:  #a6a6a6;   left: 155px;}div.legPeriod{position: relative;   font: bold 20px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-240px;   padding: 10px;   color:  #000000;   left: 250px;}div.legPeriod_r{position: relative;   font: bold 20px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1130px;   padding: 10px;   color:  #000000;   left: 435px;}div.arrival{position: relative;   font: bold 55px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-375px;   padding: 10px;   color:  #000000;   left: 580px;}div.arrival_r{position: relative;   font: bold 55px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1405px;   padding: 10px;   color:  #000000;   left: 760px;}div.travelType{position: relative;   font:  28px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-580px;   padding: 10px;   color: #006622;   left: 420px;}div.travelType_r{position: relative;   font:  28px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1174px;   padding: 10px;   color:  #006622;   left: 435px;}div.dest{position: relative;   font: 37px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-635px;   padding: 10px;   color:  #a6a6a6;   left: 760px;}div.dest_r{position: relative;   font: 37px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1500px;   padding: 10px;   color: #a6a6a6;   left: 765px;}div.amount{position: relative;   font: 45px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-335px;   padding: 10px;   color:  #ffffff;   left: 430px;}div.img2 {    position: relative;   font: 45px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1045px;   padding: 10px;  color:  #ffffff;  left: 200px;}div.img3{    position: relative;  font: 45px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-830px;   padding: 10px;   color:  #ffffff;   left: 200px;   width : 50px;}</style></head><body><div><div class=\"img\">  <a target=\"_blank\" href=\"http://maps.googleapis.com/maps/api/staticmap?size=382x220&path=geodesic:true|color:red|51.50853,-0.12574|55.972778,37.414722&markers=size:mid|label:1|51.50853,-0.12574&markers=size:mid|label:2|55.972778,37.414722\"><img src=\"template1.png\" alt=\"Response\" width=\"1000\" height=\"427\"></a></div><div class=\"span\"><h2>SU2585 </h2></div><div class=\"departure\"><h2><span>2016-09-01T04:25</span></h2></div><div class=\"legPeriod\"><h2><span>-5hrs -40mins</span></h2></div><div class=\"arrival\"><h2><span>2016-08-31T22:45</span></h2></div><div class=\"origin\"><p><span>LHR</span></p></div><div class=\"travelType\"><span>Non Stop</span></div><div class=\"dest\"><span>SVO</span></div><div class=\"amount\"<p><span>$ 2699.13<div class=\"span_r\"><h2>SU2570 </h2></div><div class=\"departure_r\"><h2>2016-09-03T08:00</h2></div><div class=\"legPeriod_r\"><h2>-2hrs 0mins</h2></div><div class=\"arrival_r\"><h2>2016-09-03T06:00</h2></div><div class=\"origin_r\"><p>SVO</p></div><div class=\"travelType_r\"><p>Non Stop</p></div><div class=\"dest_r\"><p>LHR</p></div></span></p></div></body></html>"}]}
+"""
+    return jsonify(json.loads(response))
+
+
+@APP.route('/sudhanwa', methods=['POST'])
+def for_sudhanwa():
+    """Trying to fix the response for Amadeus"""
+    response = """
+{
+  "botkitVersion": "0.3.0",
+  "messages": [
+    {
+      "_type": "TextMessage",
+      "text": "Here are the the top 3 results:"
+    },
+    {
+      "_type": "RichMessage",
+      "title": "LHR /u21d2 SVO Option # 1: $1842.24",
+      "imageUrl": "https://www.travelexinsurance.com/images/default-album/mainimg_flightinsurance.jpg",
+      "subtitle": " : 2016-08-31,c: 2016-09-01,one stop at SVO",
+      "buttons": [
+        {
+          "_type": "ButtonMessage",
+          "text": "Reserve Seat",
+          "payload": null,
+          "url": "https://www.google.com/search?q=flight%20LHR%20to%20SVO"
+        }
+      ]
+    },
+    {
+      "_type": "TextMessage",
+      "text": "Outbound Flight"
+    },
+    {
+      "_type": "HtmlMessage",
+      "height": "200",
+      "width": "350",
+      "html": "<h3>Arrives at</h3> :2016-08-31T23:35<br><h3>Departs at</h3> :2016-08-31T18:40<br><h3>Fly with</h3> :BA<h3>Airways</h3><br><h3>Origin Airport</h3> :LHR<br><h3>Destination Airport</h3> :HEL<br><h3>Flight Number</h3> :5908<br>"
+    },
+    {
+      "_type": "HtmlMessage",
+      "height": "200",
+      "width": "350",
+      "html": "<h3>Arrives at</h3> :2016-09-01T11:05<br><h3>Departs at</h3> :2016-09-01T09:25<br><h3>Fly with</h3> :AY<h3>Airways</h3><br><h3>Origin Airport</h3> :HEL<br><h3>Destination Airport</h3> :SVO<br><h3>Flight Number</h3> :153<br>"
+    },
+    {
+      "_type": "TextMessage",
+      "text": "Inbound Flight"
+    },
+    {
+      "_type": "HtmlMessage",
+      "height": "200",
+      "width": "350",
+      "html": "<h3>Arrives at</h3> :2016-09-03T20:05<br><h3>Departs at</h3> :2016-09-03T18:20<br><h3>Fly with</h3> :SU<h3>Airways</h3><br><h3>Origin Airport</h3> :SVO<br><h3>Destination Airport</h3> :HEL<br><h3>Flight Number</h3> :6844<br>"
+    },
+    {
+      "_type": "HtmlMessage",
+      "height": "200",
+      "width": "350",
+      "html": "<h3>Arrives at</h3> :2016-09-04T09:00<br><h3>Departs at</h3> :2016-09-04T07:45<br><h3>Fly with</h3> :BA<h3>Airways</h3><br><h3>Origin Airport</h3> :HEL<br><h3>Destination Airport</h3> :LHR<br><h3>Flight Number</h3> :5905<br>"
+    },
+    {
+      "_type": "HtmlMessage",
+      "height": "200",
+      "width": "350",
+      "html": "<h3>Arrives at</h3> :2016-08-31T23:35<br><h3>Departs at</h3> :2016-08-31T18:40<br><h3>Fly with</h3> :BA<h3>Airways</h3><br><h3>Origin Airport</h3> :LHR<br><h3>Destination Airport</h3> :HEL<br><h3>Flight Number</h3> :5908<br>"
+    },
+    {
+      "_type": "RichMessage",
+      "title": "LHR /u21d2 SVO Option # 2: $2110.83",
+      "imageUrl": "https://www.travelexinsurance.com/images/default-album/mainimg_flightinsurance.jpg",
+      "subtitle": ": 2016-08-31,c: 2016-09-01,one stop at SVO",
+      "buttons": [
+        {
+          "_type": "ButtonMessage",
+          "text": "Reserve Seat",
+          "payload": null,
+          "url": "https://www.google.com/search?q=flight%20LHR%20to%20SVO"
+        }
+      ]
+    },
+    {
+      "_type": "TextMessage",
+      "text": "Outbound Flight"
+    },
+    {
+      "_type": "HtmlMessage",
+      "height": "200",
+      "width": "350",
+      "html": "<h3>Arrives at</h3> :2016-08-31T18:05<br><h3>Departs at</h3> :2016-08-31T15:50<br><h3>Fly with</h3> :AF<h3>Airways</h3><br><h3>Origin Airport</h3> :LHR<br><h3>Destination Airport</h3> :CDG<br><h3>Flight Number</h3> :1781<br>"
+    },
+    {
+      "_type": "HtmlMessage",
+      "height": "200",
+      "width": "350",
+      "html": "<h3>Arrives at</h3> :2016-09-01T00:10<br><h3>Departs at</h3> :2016-08-31T19:30<br><h3>Fly with</h3> :AF<h3>Airways</h3><br><h3>Origin Airport</h3> :CDG<br><h3>Destination Airport</h3> :SVO<br><h3>Flight Number</h3> :1144<br>"
+    },
+    {
+      "_type": "TextMessage",
+      "text": "Inbound Flight"
+    },
+    {
+      "_type": "HtmlMessage",
+      "height": "200",
+      "width": "350",
+      "html": "<h3>Arrives at</h3> :2016-09-03T17:00<br><h3>Departs at</h3> :2016-09-03T14:05<br><h3>Fly with</h3> :SU<h3>Airways</h3><br><h3>Origin Airport</h3> :SVO<br><h3>Destination Airport</h3> :CDG<br><h3>Flight Number</h3> :4921<br>"
+    },
+    {
+      "_type": "HtmlMessage",
+      "height": "200",
+      "width": "350",
+      "html": "<h3>Arrives at</h3> :2016-09-03T19:20<br><h3>Departs at</h3> :2016-09-03T19:05<br><h3>Fly with</h3> :AF<h3>Airways</h3><br><h3>Origin Airport</h3> :CDG<br><h3>Destination Airport</h3> :LHR<br><h3>Flight Number</h3> :1180<br>"
+    },
+    {
+      "_type": "HtmlMessage",
+      "height": "200",
+      "width": "350",
+      "html": "<h3>Arrives at</h3> :2016-08-31T18:05<br><h3>Departs at</h3> :2016-08-31T15:50<br><h3>Fly with</h3> :AF<h3>Airways</h3><br><h3>Origin Airport</h3> :LHR<br><h3>Destination Airport</h3> :CDG<br><h3>Flight Number</h3> :1781<br>"
+    },
+    {
+      "_type": "RichMessage",
+      "title": "LHR /u21d2 SVO Option # 3: $2699.13",
+      "imageUrl": "https://www.travelexinsurance.com/images/default-album/mainimg_flightinsurance.jpg",
+      "subtitle": " : 2016-08-31,c: 2016-09-01,non stop ",
+      "buttons": [
+        {
+          "_type": "ButtonMessage",
+          "text": "Reserve Seat",
+          "payload": null,
+          "url": "https://www.google.com/search?q=flight%20LHR%20to%20SVO"
+        }
+      ]
+    },
+    {
+      "_type": "TextMessage",
+      "text": "Outbound Flight"
+    },
+    {
+      "_type": "HtmlMessage",
+      "height": "200",
+      "width": "350",
+      "html": "<h3>Arrives at</h3> :2016-09-01T04:25<br><h3>Departs at</h3> :2016-08-31T22:45<br><h3>Fly with</h3> :SU<h3>Airways</h3><br><h3>Origin Airport</h3> :LHR<br><h3>Destination Airport</h3> :SVO<br><h3>Flight Number</h3> :2585<br>"
+    },
+    {
+      "_type": "TextMessage",
+      "text": "Inbound Flight"
+    },
+    {
+      "_type": "HtmlMessage",
+      "height": "200",
+      "width": "350",
+      "html": "<h3>Arrives at</h3> :2016-09-03T08:00<br><h3>Departs at</h3> :2016-09-03T06:00<br><h3>Fly with</h3> :SU<h3>Airways</h3><br><h3>Origin Airport</h3> :SVO<br><h3>Destination Airport</h3> :LHR<br><h3>Flight Number</h3> :2570<br>"
+    },
+    {
+      "_type": "HtmlMessage",
+      "height": "200",
+      "width": "350",
+      "html": "<h3>Arrives at</h3> :2016-09-01T04:25<br><h3>Departs at</h3> :2016-08-31T22:45<br><h3>Fly with</h3> :SU<h3>Airways</h3><br><h3>Origin Airport</h3> :LHR<br><h3>Destination Airport</h3> :SVO<br><h3>Flight Number</h3> :2585<br>"
+    }
+  ]
+}
+"""
+    
+    return jsonify(json.loads(response))
+
+
 # We only need this for local development.
 if __name__ == '__main__':
     APP.run()
+#     print(json.dumps(dict(messages=[BOARDING_PASS_MESSAGE_EXAMPLE],
+#                     botkitVersion=BOTKIT_API_LATEST_VERSION)))
