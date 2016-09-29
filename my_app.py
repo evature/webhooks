@@ -16,12 +16,14 @@ from __future__ import unicode_literals, division
 import string
 import random
 import json
+from random import sample
 
-from flask import Flask, request, redirect, render_template, jsonify
+from flask import Flask, request, redirect, render_template, jsonify, make_response
+import requests
 
 APP = Flask(__name__)
 
-BOTKIT_API_LATEST_VERSION = "0.3.0"
+BOTKIT_API_LATEST_VERSION = "0.4.0"
 
 class DataMessageSubType(object):
     """Sub Types of DataMessage JSON data"""
@@ -121,10 +123,10 @@ BOARDING_PASS_MESSAGE_EXAMPLE = dict(
 def simple():
     """Simple view function"""
     response = dict(messages=[
-        dict(_type="TextMessage", text="Here is your first message"),
-        dict(_type="TextMessage", text="and a picture of a lock"),
+        dict(_type="TextMessage", text="Here is a text message"),
+        dict(_type="TextMessage", text="and a picture of a fish"),
         dict(_type="ImageMessage",
-             imageUrl="http://www.fortresslockandsecurity.com/wp-content/uploads/2014/04/Austin-Locksmith.png")
+             imageUrl="http://pngimg.com/upload/fish_PNG10538.png")
                                     ],
                     botkitVersion=BOTKIT_API_LATEST_VERSION)
     return jsonify(response)
@@ -273,7 +275,7 @@ def tal_testing():
 def for_roshan():
     """Trying to fix the response for Amadeus"""
     response = r"""
-{"botkitVersion":"0.3.0","messages":[{"_type":"TextMessage","text":"Here are the the top 3 results:"},{"_type":"HtmlMessage","height":"200","width":"350","html":"<html><head><style>div.img {    float: left;    width: 180px;}div.h2{  }div.span{position: relative;   font: bold 24px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-15px;   padding: 10px;   color:#2929a3;   left: 80px;}div.span_r{position: relative;   font: bold 24px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-785px;   padding: 10px;   color: #2929a3 ;   left: 255px;}div.departure{position: relative;   font: bold 50px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-60px;   padding: 10px;   color:  #000000;   left: -160px;}div.departure_r{position: relative;   font: bold 50px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-830px;   padding: 10px;   color: #000000 ;   left: 25px;}div.origin{position: relative;   font: 37px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-470px;   padding: 10px;   color:  #a6a6a6;   left: -25px;}div.origin_r{position: relative;   font: 37px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-930px;   padding: 10px;   color:  #a6a6a6;   left: 155px;}div.legPeriod{position: relative;   font: bold 20px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-240px;   padding: 10px;   color:  #000000;   left: 250px;}div.legPeriod_r{position: relative;   font: bold 20px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1130px;   padding: 10px;   color:  #000000;   left: 435px;}div.arrival{position: relative;   font: bold 55px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-375px;   padding: 10px;   color:  #000000;   left: 580px;}div.arrival_r{position: relative;   font: bold 55px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1405px;   padding: 10px;   color:  #000000;   left: 760px;}div.travelType{position: relative;   font:  28px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-580px;   padding: 10px;   color: #006622;   left: 420px;}div.travelType_r{position: relative;   font:  28px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1174px;   padding: 10px;   color:  #006622;   left: 435px;}div.dest{position: relative;   font: 37px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-635px;   padding: 10px;   color:  #a6a6a6;   left: 760px;}div.dest_r{position: relative;   font: 37px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1500px;   padding: 10px;   color: #a6a6a6;   left: 765px;}div.amount{position: relative;   font: 45px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-335px;   padding: 10px;   color:  #ffffff;   left: 430px;}div.img2 {    position: relative;   font: 45px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1045px;   padding: 10px;  color:  #ffffff;  left: 200px;}div.img3{position: relative;  font: 45px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-830px;   padding: 10px;   color:  #ffffff;   left: 200px;   width : 50px;}</style></head><body><div><div class=\"img\">  <a target=\"_blank\" href=\"http://maps.googleapis.com/maps/api/staticmap?size=382x220&path=geodesic:true|color:red|51.50853,-0.12574|60.317222,24.963333|55.972778,37.414722&markers=size:mid|label:1|51.50853,-0.12574&markers=size:mid|label:2|60.317222,24.963333&markers=size:mid|label:3|55.972778,37.414722\"><img src=\"template1.png\" alt=\"Response\" width=\"1000\" height=\"427\"></a></div><div class=\"span\"><h2>BA5908 AY153 </h2></div><div class=\"departure\"><h2><span>2016-08-31T23:35</span></h2></div><div class=\"legPeriod\"><h2><span>9hrs 50mins</span></h2></div><div class=\"arrival\"><h2><span>2016-09-01T09:25</span></h2></div><div class=\"origin\"><p><span>LHR</span></p></div><div class=\"travelType\"><span>1 Stop</span></div><div class=\"dest\"><span>SVO</span></div><div class=\"amount\"<p><span>$ 1842.24<div class=\"span_r\"><h2>SU6844 BA5905 </h2></div><div class=\"departure_r\"><h2>2016-09-03T20:05</h2></div><div class=\"legPeriod_r\"><h2>11hrs 40mins</h2></div><div class=\"arrival_r\"><h2>2016-09-04T07:45</h2></div><div class=\"origin_r\"><p>SVO</p></div><div class=\"travelType_r\"><p>1 Stop</p></div><div class=\"dest_r\"><p>LHR</p></div></span></p></div></body></html>"},{"_type":"HtmlMessage","height":"200","width":"350","html":"<html><head><style>div.img {    float: left;    width: 180px;}div.h2{  }div.span{position: relative;   font: bold 24px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-15px;   padding: 10px;   color:#2929a3;   left: 80px;}div.span_r{position: relative;   font: bold 24px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-785px;   padding: 10px;   color: #2929a3 ;   left: 255px;}div.departure{position: relative;   font: bold 50px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-60px;   padding: 10px;   color:  #000000;   left: -160px;}div.departure_r{position: relative;   font: bold 50px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-830px;   padding: 10px;   color: #000000 ;   left: 25px;}div.origin{position: relative;   font: 37px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-470px;   padding: 10px;   color:  #a6a6a6;   left: -25px;}div.origin_r{position: relative;   font: 37px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-930px;   padding: 10px;   color:  #a6a6a6;   left: 155px;}div.legPeriod{position: relative;   font: bold 20px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-240px;   padding: 10px;   color:  #000000;   left: 250px;}div.legPeriod_r{position: relative;   font: bold 20px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1130px;   padding: 10px;   color:  #000000;   left: 435px;}div.arrival{position: relative;   font: bold 55px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-375px;   padding: 10px;   color:  #000000;   left: 580px;}div.arrival_r{position: relative;   font: bold 55px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1405px;   padding: 10px;   color:  #000000;   left: 760px;}div.travelType{position: relative;   font:  28px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-580px;   padding: 10px;   color: #006622;   left: 420px;}div.travelType_r{position: relative;   font:  28px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1174px;   padding: 10px;   color:  #006622;   left: 435px;}div.dest{position: relative;   font: 37px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-635px;   padding: 10px;   color:  #a6a6a6;   left: 760px;}div.dest_r{position: relative;   font: 37px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1500px;   padding: 10px;   color: #a6a6a6;   left: 765px;}div.amount{position: relative;   font: 45px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-335px;   padding: 10px;   color:  #ffffff;   left: 430px;}div.img2 {    position: relative;   font: 45px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1045px;   padding: 10px;  color:  #ffffff;  left: 200px;}div.img3{position: relative;  font: 45px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-830px;   padding: 10px;   color:  #ffffff;   left: 200px;   width : 50px;}</style></head><body><div><div class=\"img\">  <a target=\"_blank\" href=\"http://maps.googleapis.com/maps/api/staticmap?size=382x220&path=geodesic:true|color:red|51.50853,-0.12574|49.016667,2.55|55.972778,37.414722&markers=size:mid|label:1|51.50853,-0.12574&markers=size:mid|label:2|49.016667,2.55&markers=size:mid|label:3|55.972778,37.414722\"><img src=\"template1.png\" alt=\"Response\" width=\"1000\" height=\"427\"></a></div><div class=\"span\"><h2>AF1781 AF1144 </h2></div><div class=\"departure\"><h2><span>2016-08-31T18:05</span></h2></div><div class=\"legPeriod\"><h2><span>1hrs 25mins</span></h2></div><div class=\"arrival\"><h2><span>2016-08-31T19:30</span></h2></div><div class=\"origin\"><p><span>LHR</span></p></div><div class=\"travelType\"><span>1 Stop</span></div><div class=\"dest\"><span>SVO</span></div><div class=\"amount\"<p><span>$ 2110.83<div class=\"span_r\"><h2>SU4921 AF1180 </h2></div><div class=\"departure_r\"><h2>2016-09-03T17:00</h2></div><div class=\"legPeriod_r\"><h2>2hrs 5mins</h2></div><div class=\"arrival_r\"><h2>2016-09-03T19:05</h2></div><div class=\"origin_r\"><p>SVO</p></div><div class=\"travelType_r\"><p>1 Stop</p></div><div class=\"dest_r\"><p>LHR</p></div></span></p></div></body></html>"},{"_type":"HtmlMessage","height":"200","width":"350","html":"<html><head><style>div.img {    float: left;    width: 180px;}div.h2{  }div.span{position: relative;   font: bold 24px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-15px;   padding: 10px;   color:#2929a3;   left: 80px;}div.span_r{position: relative;   font: bold 24px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-785px;   padding: 10px;   color: #2929a3 ;   left: 255px;}div.departure{position: relative;   font: bold 50px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-60px;   padding: 10px;   color:  #000000;   left: -160px;}div.departure_r{position: relative;   font: bold 50px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-830px;   padding: 10px;   color: #000000 ;   left: 25px;}div.origin{position: relative;   font: 37px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-470px;   padding: 10px;   color:  #a6a6a6;   left: -25px;}div.origin_r{position: relative;   font: 37px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-930px;   padding: 10px;   color:  #a6a6a6;   left: 155px;}div.legPeriod{position: relative;   font: bold 20px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-240px;   padding: 10px;   color:  #000000;   left: 250px;}div.legPeriod_r{position: relative;   font: bold 20px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1130px;   padding: 10px;   color:  #000000;   left: 435px;}div.arrival{position: relative;   font: bold 55px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-375px;   padding: 10px;   color:  #000000;   left: 580px;}div.arrival_r{position: relative;   font: bold 55px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1405px;   padding: 10px;   color:  #000000;   left: 760px;}div.travelType{position: relative;   font:  28px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-580px;   padding: 10px;   color: #006622;   left: 420px;}div.travelType_r{position: relative;   font:  28px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1174px;   padding: 10px;   color:  #006622;   left: 435px;}div.dest{position: relative;   font: 37px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-635px;   padding: 10px;   color:  #a6a6a6;   left: 760px;}div.dest_r{position: relative;   font: 37px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1500px;   padding: 10px;   color: #a6a6a6;   left: 765px;}div.amount{position: relative;   font: 45px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-335px;   padding: 10px;   color:  #ffffff;   left: 430px;}div.img2 {    position: relative;   font: 45px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-1045px;   padding: 10px;  color:  #ffffff;  left: 200px;}div.img3{    position: relative;  font: 45px/45px Helvetica, Sans-Serif;   letter-spacing: -1px;   top:-830px;   padding: 10px;   color:  #ffffff;   left: 200px;   width : 50px;}</style></head><body><div><div class=\"img\">  <a target=\"_blank\" href=\"http://maps.googleapis.com/maps/api/staticmap?size=382x220&path=geodesic:true|color:red|51.50853,-0.12574|55.972778,37.414722&markers=size:mid|label:1|51.50853,-0.12574&markers=size:mid|label:2|55.972778,37.414722\"><img src=\"template1.png\" alt=\"Response\" width=\"1000\" height=\"427\"></a></div><div class=\"span\"><h2>SU2585 </h2></div><div class=\"departure\"><h2><span>2016-09-01T04:25</span></h2></div><div class=\"legPeriod\"><h2><span>-5hrs -40mins</span></h2></div><div class=\"arrival\"><h2><span>2016-08-31T22:45</span></h2></div><div class=\"origin\"><p><span>LHR</span></p></div><div class=\"travelType\"><span>Non Stop</span></div><div class=\"dest\"><span>SVO</span></div><div class=\"amount\"<p><span>$ 2699.13<div class=\"span_r\"><h2>SU2570 </h2></div><div class=\"departure_r\"><h2>2016-09-03T08:00</h2></div><div class=\"legPeriod_r\"><h2>-2hrs 0mins</h2></div><div class=\"arrival_r\"><h2>2016-09-03T06:00</h2></div><div class=\"origin_r\"><p>SVO</p></div><div class=\"travelType_r\"><p>Non Stop</p></div><div class=\"dest_r\"><p>LHR</p></div></span></p></div></body></html>"}]}
+{"botkitVersion":"0.3.0","messages":[{"_type":"TextMessage","text":"Here are the the top 3 results:"},{"_type":"MultiRichMessage","messages":[{"_type":"RichMessage","title":"BLR (2016-08-24 18:25) -> NCE (2016-08-24 09:40)","imageUrl":"http://tomcat.www.1aipp.com/sandboxrestservice_chatbot/flight.jpg","buttons":[{"_type":"ButtonMessage","text":"$ 1204.46","url":"https://www.amadeus.net/home/"},{"_type":"ButtonMessage","text":"More Details","url":"https://www.amadeus.net/home/"},{"_type":"ButtonMessage","text":"Book this flight","url":"https://www.amadeus.net/home/"},{"_type":"ButtonMessage","text":"Show similar flights","url":"https://www.amadeus.net/home/"}],"url":"https://www.amadeus.net/home/"},{"_type":"RichMessage","title":"BLR (2016-08-24 18:25) -> NCE (2016-08-24 09:40)","imageUrl":"http://tomcat.www.1aipp.com/sandboxrestservice_chatbot/flight.jpg","buttons":[{"_type":"ButtonMessage","text":"$ 1219.24","url":"https://www.amadeus.net/home/"},{"_type":"ButtonMessage","text":"More Details","url":"https://www.amadeus.net/home/"},{"_type":"ButtonMessage","text":"Book this flight","url":"https://www.amadeus.net/home/"},{"_type":"ButtonMessage","text":"Show similar flights","url":"https://www.amadeus.net/home/"}],"url":"https://www.amadeus.net/home/"},{"_type":"RichMessage","title":"BLR (2016-08-24 17:00) -> NCE (2016-08-24 06:40)","imageUrl":"http://tomcat.www.1aipp.com/sandboxrestservice_chatbot/flight.jpg","buttons":[{"_type":"ButtonMessage","text":"$ 1444.75","url":"https://www.amadeus.net/home/"},{"_type":"ButtonMessage","text":"More Details","url":"https://www.amadeus.net/home/"},{"_type":"ButtonMessage","text":"Book this flight","url":"https://www.amadeus.net/home/"},{"_type":"ButtonMessage","text":"Show similar flights","url":"https://www.amadeus.net/home/"}],"url":"https://www.amadeus.net/home/"}]}]}
 """
     return jsonify(json.loads(response))
 
@@ -436,12 +438,187 @@ def for_sudhanwa():
   ]
 }
 """
-    
+
     return jsonify(json.loads(response))
+
+
+
+
+@APP.route('/questions', methods=['POST'])
+def questions():
+    """Playing with questions"""
+    response = """
+    {
+      "botkitVersion":"0.4.0",
+      "messages":[
+        {
+          "_type":"QuestionnaireEvent",
+          "questionnaireAnsweredHook":{
+            "webhook":"roadside_assistance",
+            "payload":{
+              "more_info_to_attach_to_answers":123
+            }
+          },
+          "questionnaireAbortedHook":{
+            "webhook":"roadside_assistance",
+            "payload":{
+              "validation error?":321
+            }
+          },
+          "questions":[
+            {
+              "_type":"EmailQuestion",
+              "name":"email",
+              "text":"I need to identify you, what is your email?"
+            },
+            {
+              "_type":"MultiChoiceQuestion",
+              "text":"What happened?",
+              "name":"what_happened",
+              "choices":[
+                "Accident",
+                "Mechanical problem",
+                "Other"
+              ]
+            },
+            {
+              "_type":"OpenQuestion",
+              "name":"details",
+              "text":"I need a string that starts with 'a' and is 3 or more letters",
+              "validationRegex":"a.{2}"
+            }
+          ]
+        }
+      ]
+    }
+"""
+    return jsonify(json.loads(response))
+
+
+@APP.route('/greeting', methods=['POST'])
+def greeting():
+    """Greeting webhook demo implementation"""
+    messages = []
+    body = request.get_json(force=True)
+    first_name = None
+    bot_or_agent_key = "bot_or_agent"
+    bot_please_reply = "YatraBot Please!"
+    if body and isinstance(body, dict):
+        bot_or_agent = body.get(bot_or_agent_key)
+        if bot_or_agent:
+            if bot_or_agent == bot_please_reply:
+                messages.append(dict(_type="TextMessage", text="bot requested - how may I help?"))
+            else:
+                messages.append(dict(_type="TextMessage", text="human requested"))
+                messages.append(dict(_type="HandoffToHumanEvent"))
+        else:
+            user = body.get('user')
+            if user and isinstance(user, dict):
+                first_name = user.get('firstName')
+                if first_name:
+                    messages.append(dict(_type="TextMessage", text="Hello there {}!".format(first_name)))
+            if not first_name:
+                messages.append(dict(_type="TextMessage", text="Hello there!"))
+            messages.append(dict(_type="QuestionnaireEvent",
+                                 questionnaireAnsweredHook=dict(webhook="chat_greeting", payload=dict()),
+                                 questions=[dict(_type="MultiChoiceQuestion",
+                                                 text="Would you like to talk to YatraBot or wait for an agent?",
+                                                 name=bot_or_agent_key,
+                                                 choices=["YatraBot Please!",
+                                                          "Wait for an agent"])]))
+    response = dict(messages=messages, botkitVersion=BOTKIT_API_LATEST_VERSION)
+    return jsonify(response)
+
+
+
+@APP.route('/https_proxy', methods=['GET'])
+def https_proxy():
+    """Trying to fix the response for Amadeus"""
+    url = request.args.get('url')
+    if url:
+        unquoted_url = requests.utils.unquote(url)
+        try:
+            res = requests.get(unquoted_url)
+        except requests.exceptions.RequestException:
+            pass
+        else:
+            response = make_response(res.content)
+            for key, value in res.headers.iteritems():
+                response.headers[key] = value
+            return response
+    return "No URL"
+
+AIRPORT_SUGGESTIONS = [
+    ("Flight Status:",
+     ["My flight status",
+      "status of ua-123",
+      "arrivals",
+      "display arrivals",
+      "departures",
+      "list arriving flight",
+      "departure list",
+      "departures flights",
+      ]),
+    ("General questions:",
+     ["Time in Rome",
+      "the weather in paris",
+      "Who are you?",
+      "What are you?",
+      "Who made you?",
+      "What do you eat?",
+      "What's new?",
+      "Who am I?",
+      "Where are you from?",
+      "What is your name?",
+      ]),
+    ("Hotel searches:",
+     ["hotel tonight",
+      "cheap hotel nyc",
+      "3-4 stars for Monday",
+      ]),
+    ("Reach out for some help:",
+     ["customer service",
+      "call support",
+      "talk to a human?",
+      "help",
+      'information',
+      'help me',
+      'can you help me?',
+      "can u show me info?",
+      "I need assistance",
+      ]),
+    ("Request personal information:",
+     ["departure time?",
+      "boarding pass",
+      "When do I depart?",
+      "Show arrival time",
+      "When do I arrive?",
+      "When are we boarding?",
+      "Display my itinerary",
+      "Trip details",
+      "Number of my gate",
+#     "12345678901234567890",
+    ]),
+]
+
+@APP.route('/capabilities_evature_airports', methods=['POST'])
+def capabilities_evature_airports():
+    """Capabilities view function"""
+    messages = [dict(_type="TextMessage", text="I can do many things! Here are a few options:")]
+    categories = sample(AIRPORT_SUGGESTIONS, 3)
+    multi_rich_messages = []
+    for category in categories:
+        buttons = [dict(_type="ButtonMessage", text=text, action=dict(_type="InputTextAction", inputText=text))
+                   for text in sample(category[1], 3)] # pylint:disable=unsubscriptable-object
+        message = dict(_type="RichMessage", title=category[0], buttons=buttons) # pylint:disable=unsubscriptable-object
+        multi_rich_messages.append(message)
+    messages.append(dict(_type="MultiRichMessage", messages=multi_rich_messages))
+    response = dict(botkitVersion=BOTKIT_API_LATEST_VERSION, messages=messages)
+    return jsonify(response)
+
 
 
 # We only need this for local development.
 if __name__ == '__main__':
     APP.run()
-#     print(json.dumps(dict(messages=[BOARDING_PASS_MESSAGE_EXAMPLE],
-#                     botkitVersion=BOTKIT_API_LATEST_VERSION)))
+
